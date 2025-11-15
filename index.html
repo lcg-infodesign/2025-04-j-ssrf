@@ -1,18 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Freedom in the World</title>
+<style>
+body {
+background-color: #00341eff;
+margin: 0;
+padding: 0;
+overflow-x: hidden;
+}
+/* Stile per select */
+select#menuAnno {
+  font-family: 'Noto Sans Mono', monospace;
+  font-size: 20px;
+  font-weight: bold;
+  padding: 8px 20px;
+  background-color: rgb(45, 45, 45);
+  border: 0px;
+  border-radius: 20px;
+  color: #f3f8caee;
+  cursor: pointer;
+  outline: none;
+  /* no riflesso brutto */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  /* no ombre e riflessi osceni */
+  box-shadow: none;
+  /* freccia personalizzata cute */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f3f8ca' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+  padding-right: 35px;
+}
 
-    <title>Sketch</title>
+select#menuAnno:focus {
+  box-shadow: none;
+}
 
-    <link rel="stylesheet" type="text/css" href="style.css">
-
-    <script src="libraries/p5.min.js"></script>
-    <script src="libraries/p5.sound.min.js"></script>
-  </head>
-
-  <body>
-    <script src="sketch.js"></script>
-  </body>
+/* Rimuove il riflesso anche dalle opzioni del dropdown */
+select#menuAnno option {
+  background-color: white;
+  color: #282828;
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.js"></script>
+</head>
+<body>
+<script src="sketch.js"></script>
+</body>
 </html>
