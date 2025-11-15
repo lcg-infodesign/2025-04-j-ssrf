@@ -3,8 +3,6 @@ let fontTitolo;
 let fontTesto;
 
 let datiFiltratiPerAnno = []; // array per dati un solo anno
-let annoSelezionato = 2025; // di default mostro all'inizio 2025
-let menuAnno;
 
 // costanti sfondo gradiente
 const coloreBackgroundTop = "#d6fcffff";
@@ -55,9 +53,23 @@ function setup() {
 
   textFont(fontTesto);
 
-  filtraDatiPerAnno(annoSelezionato);
- 
-  creareMenuAnno()
+  // Carica TUTTI i dati del 2025 direttamente
+  for (let i = 0; i < table.getRowCount(); i++) {
+    let row = table.getRow(i);
+    let paese = {
+      nome: row.get('Country/Territory'),
+      regione: row.get('Region'),
+      tipo: row.get('C/T'),
+      status: row.get('Status'),
+      pr: parseInt(row.get('PR')) || 0, 
+      cl: parseInt(row.get('CL')) || 0,
+      total: parseInt(row.get('TOTAL ')) || 0
+    };
+    datiFiltratiPerAnno.push(paese);
+  }
+
+  raggruppaPaesiPerRegione();
+  precalcolaPosizioniRegioni();
 }
 
 
@@ -160,35 +172,7 @@ function draw() {
 
 }
 
-function filtraDatiPerAnno(anno) {
-  datiFiltratiPerAnno = [];
-  
-  for (let i = 0; i < table.getRowCount(); i++) {
-    let row = table.getRow(i);
-    let edizione = parseInt(row.get('Edition')); 
-    // parseInt converte stringa in un numero intero, 
-    // pk edizione nel dataser letta come stringa non corrisponde a 2025 
-    // numero del menu tendina
-    
-    if (edizione === anno) {
-      let paese = {
-        nome: row.get('Country/Territory'),
-        regione: row.get('Region'),
-        tipo: row.get('C/T'),
-        status: row.get('Status'),
-        pr: parseInt(row.get('PR')) || 0, 
-        cl: parseInt(row.get('CL')) || 0,
-        total: parseInt(row.get('TOTAL ')) || 0
-        // per sicurezza metto ||0 in modo che se cerco di parsare
-        // una stringa che non è un numero non si buggi tutto ma mi dia 0
-      };
-      datiFiltratiPerAnno.push(paese);
-    }
-  }
 
-  raggruppaPaesiPerRegione();
-  precalcolaPosizioniRegioni(); 
-}
 
 function disegnaGradiente() {
   for (let y = 0; y < height; y++) { // scorre ogni riga di pixel dall'alto al basso
@@ -464,27 +448,6 @@ function disegnaSoffione(
   
 }
 
-function creareMenuAnno() {
-
-  menuAnno = createSelect();
-  menuAnno.id('menuAnno'); // assegno id per poter stilizzare in css nell'index
-  
-  let navHeight = 70;
-  let navTop = 90;
-  menuAnno.position(width / 2 - 50, navTop + (navHeight/2.5) );
-  
-  menuAnno.option('2025');
-  menuAnno.option('2024');
-  menuAnno.option('2023');
-  menuAnno.selected(annoSelezionato.toString()); // di default seleziona anno corrente
-  menuAnno.changed(cambiaAnno);
-  // quando cambio la selezione chiama funzione cambiAnno
-}
-
-function cambiaAnno() {
-  annoSelezionato = parseInt(menuAnno.value());
-  filtraDatiPerAnno(annoSelezionato);
-}
 
 function disegnaPannelloLegenda(yPrato) {
   push();
