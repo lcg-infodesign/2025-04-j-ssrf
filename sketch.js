@@ -722,7 +722,7 @@ function disegnaPannelloDettaglio() {
   line(chiudiX + 20, chiudiY, chiudiX, chiudiY + 20);
   
   // DIVISIONE PANNELLO 2 PARTI
-  let larghezzaSinistra = 450;
+  let larghezzaSinistra = 550;
   let xDivisione = pannelloX + larghezzaSinistra;
   //linea divisione
   stroke(coloreTitolo, 100);
@@ -1085,7 +1085,7 @@ function controllaClickSottocategorie(id, domande) {
       
       if (sottocategorieAperte[id]) {
         // Se aperta, calcolo altezza ESATTA per ogni domanda
-        let larghezzaDisponibile = 450 - 100 - 60; // larghezzaSinistra - margini - offset domanda
+        let larghezzaDisponibile = 550 - 100 - 60; // larghezzaSinistra - margini - offset domanda
         
         for (let domanda of domande) {
           // Calcolo esattamente quante righe occupa il testo
