@@ -30,7 +30,7 @@ const coloreCentroSoffione = ["#00341eff"];
 const colori = {
   F: { base: "#2d6d6dbd", light: "#6ea5a5", dark: "#1a4444" },
   PF: { base: "#8fa59cc1", light: "#b8cbc3", dark: "#6b7f76" },
-  NF: { base: "#6f0c2bb0", light: "#dfd4c5", dark: "#9a8872" }
+  NF: { base: "#6f0c2bb0", light: "#ac6e82ff", dark: "#711f39ff" }
 }
 
 const coloreHighlight = ["#e6124790"];
