@@ -1041,7 +1041,10 @@ function disegnaSottocategoria(id, nome, punteggio, maxPunteggio, domande, x, y,
   return yCorrente;
 }
 
-function controllaClickSottocategorie() {
+function controllaClickSottocategorie(id, domande) {
+  // per risolvere bug che non apriva altro parametro se uno era già aperto (voglio mostri
+  // solo un parametro alla volta, quindi chiuda quello già aperto se clicco su + di un altro)
+  // aggiungo array di domande tra parametri accettati della funzione
   if (paeseSelezionato === null) return;
   
   let margine = 60;
@@ -1077,47 +1080,78 @@ function controllaClickSottocategorie() {
   }
   
   //funzione per calcolare altezza di una sottocategoria (replica logica di disegnaSottocategoria)
-  function altezzaSottocategoria(id, numDomande) {
-    let altezza = 18 + 8 + 5 + 5 + 8; // nome(18) + barra(8) + spazi + margine finale
-    
-    if (sottocategorieAperte[id]) {
-      //se aperta, aggiungo spazio per le domande (ogni domanda occupa circa 16-20px )
-      altezza += numDomande * 18 + 10; // stima conservativa
+  function altezzaSottocategoria(id, domande) {
+      let altezza = 18 + 8 + 5 + 5 + 8; // = 44px base (chiusa)
+      
+      if (sottocategorieAperte[id]) {
+        // Se aperta, calcolo altezza ESATTA per ogni domanda
+        let larghezzaDisponibile = 450 - 100 - 60; // larghezzaSinistra - margini - offset domanda
+        
+        for (let domanda of domande) {
+          // Calcolo esattamente quante righe occupa il testo
+          textSize(9); // stessa size usata in disegnasottocategoria
+          let larghezzaTesto = textWidth(domanda.testo);
+          let righeStimate = ceil(larghezzaTesto / larghezzaDisponibile);
+          let altezzaDomanda = max(18, righeStimate * 13 + 6);
+          altezza += altezzaDomanda;
+        }
+        altezza += 5; // spazio dopo tutte le domande
+      }
+      
+      return altezza;
     }
-    
-    return altezza;
-  }
+  
   
   // POLITICAL RIGHTS
-  // Sottocategoria A
   if (checkButton("A", yTesto)) return;
-  yTesto += altezzaSottocategoria("A", 3);
+  yTesto += altezzaSottocategoria("A", [
+    { testo: "Is the head of state and/or head of government elected through free and fair elections?", punteggio: paeseSelezionato.a1 },
+    { testo: "Are the legislative representatives elected through free and fair elections?", punteggio: paeseSelezionato.a2 },
+    { testo: "Are the electoral laws and framework fair?", punteggio: paeseSelezionato.a3 }
+  ]);
   
-  // Sottocategoria B
   if (checkButton("B", yTesto)) return;
-  yTesto += altezzaSottocategoria("B", 4);
+  yTesto += altezzaSottocategoria("B", [
+    { testo: "Do people have the right to organize in different political parties?", punteggio: paeseSelezionato.b1 },
+    { testo: "Is there a significant opposition vote and realistic possibility for power change?", punteggio: paeseSelezionato.b2 },
+    { testo: "Are people free from domination by military, foreign powers, or other groups?", punteggio: paeseSelezionato.b3 },
+    { testo: "Do minority groups have self-determination or participation in decision-making?", punteggio: paeseSelezionato.b4 }
+  ]);
   
-  // Sottocategoria C
   if (checkButton("C", yTesto)) return;
-  yTesto += altezzaSottocategoria("C", 3);
+  yTesto += altezzaSottocategoria("C", [
+    { testo: "Do freely elected representatives determine government policies?", punteggio: paeseSelezionato.c1 },
+    { testo: "Is the government free from pervasive corruption?", punteggio: paeseSelezionato.c2 },
+    { testo: "Is the government accountable and transparent?", punteggio: paeseSelezionato.c3 }
+  ]);
   
   yTesto += 30; // spazio prima CL
   yTesto += 35; // titolo CL
   
   // CIVIL LIBERTIES
-  // Sottocategoria D
   if (checkButton("D", yTesto)) return;
-  yTesto += altezzaSottocategoria("D", 4);
+  yTesto += altezzaSottocategoria("D", [
+    { testo: "Are there free and independent media?", punteggio: paeseSelezionato.d1 },
+    { testo: "Are there free religious institutions and expression?", punteggio: paeseSelezionato.d2 },
+    { testo: "Is there academic freedom?", punteggio: paeseSelezionato.d3 },
+    { testo: "Is there open and free private discussion?", punteggio: paeseSelezionato.d4 }
+  ]);
   
-  // Sottocategoria E
   if (checkButton("E", yTesto)) return;
-  yTesto += altezzaSottocategoria("E", 3);
+  yTesto += altezzaSottocategoria("E", [
+    { testo: "Is there freedom of assembly and demonstration?", punteggio: paeseSelezionato.e1 },
+    { testo: "Is there freedom for NGOs?", punteggio: paeseSelezionato.e2 },
+    { testo: "Are there free trade unions and collective bargaining?", punteggio: paeseSelezionato.e3 }
+  ]);
   
-  // Sottocategoria F
   if (checkButton("F", yTesto)) return;
-  yTesto += altezzaSottocategoria("F", 4);
+  yTesto += altezzaSottocategoria("F", [
+    { testo: "Is there an independent judiciary?", punteggio: paeseSelezionato.f1 },
+    { testo: "Does the rule of law prevail in civil and criminal matters?", punteggio: paeseSelezionato.f2 },
+    { testo: "Is there protection from political terror and unjustified imprisonment?", punteggio: paeseSelezionato.f3 },
+    { testo: "Do laws guarantee equal treatment of population segments?", punteggio: paeseSelezionato.f4 }
+  ]);
   
-  // Sottocategoria G
   if (checkButton("G", yTesto)) return;
 }
 
