@@ -38,6 +38,10 @@ const coloreHighlight = ["#e6124790"];
 const colorePannelloLegenda = "#a8ca88cf";
 
 
+// variabili es 04
+let paeseSelezionato = null;
+let sottocategorieAperte = {}; // tiene traccia quali sottocategorie sono aperte
+
 
 function preload() {
   table = loadTable('FREEDOMHOUSE_ES3.csv', 'csv', 'header');
@@ -63,8 +67,43 @@ function setup() {
       status: row.get('Status'),
       pr: parseInt(row.get('PR')) || 0, 
       cl: parseInt(row.get('CL')) || 0,
-      total: parseInt(row.get('TOTAL ')) || 0
+      total: parseInt(row.get('TOTAL ')) || 0,
+      // aggiungo tutte le sottocategorie
+      totalA: parseInt(row.get('Total A')) || 0,
+      totalB: parseInt(row.get('Total B')) || 0,
+      totalC: parseInt(row.get('Total C')) || 0,
+      totalD: parseInt(row.get('Total D')) || 0,
+      totalE: parseInt(row.get('Total E')) || 0,
+      totalF: parseInt(row.get('Total F')) || 0,
+      totalG: parseInt(row.get('Total G')) || 0,
+      // aggiungo domande parametri
+      a1: parseInt(row.get('Question A1')) || 0,
+      a2: parseInt(row.get('Question A2')) || 0,
+      a3: parseInt(row.get('Question A3')) || 0,
+      b1: parseInt(row.get('Question B1')) || 0,
+      b2: parseInt(row.get('Question B2')) || 0,
+      b3: parseInt(row.get('Question B3')) || 0,
+      b4: parseInt(row.get('Question B4')) || 0,
+      c1: parseInt(row.get('Question C1')) || 0,
+      c2: parseInt(row.get('Question C2')) || 0,
+      c3: parseInt(row.get('Question C3')) || 0,
+      d1: parseInt(row.get('Question D1')) || 0,
+      d2: parseInt(row.get('Question D2')) || 0,
+      d3: parseInt(row.get('Question D3')) || 0,
+      d4: parseInt(row.get('Question D4')) || 0,
+      e1: parseInt(row.get('Question E1')) || 0,
+      e2: parseInt(row.get('Question E2')) || 0,
+      e3: parseInt(row.get('Question E3')) || 0,
+      f1: parseInt(row.get('Question F1')) || 0,
+      f2: parseInt(row.get('Question F2')) || 0,
+      f3: parseInt(row.get('Question F3')) || 0,
+      f4: parseInt(row.get('Question F4')) || 0,
+      g1: parseInt(row.get('Question G1')) || 0,
+      g2: parseInt(row.get('Question G2')) || 0,
+      g3: parseInt(row.get('Question G3')) || 0,
+      g4: parseInt(row.get('Question G4')) || 0
     };
+
     datiFiltratiPerAnno.push(paese);
   }
 
@@ -164,12 +203,15 @@ function draw() {
   // V SCROLLA X VEDERE ALTRO
   disegnaIndicatoreScroll(yPrato);
 
-  // DISEGNO TOOLTIP INFO
-  // nel draw pk voglio stia sopra a tutto
-  if (paeseInHoverGlobale !== null) {
+  // DISEGNO TOOLTIP INFO (solo se non c'è pannello dettaglio aperto)
+  if (paeseInHoverGlobale !== null && paeseSelezionato === null) {
     mostraInfoPaese(paeseInHoverGlobale, mouseX, mouseY);
   }
 
+  // DISEGNO PANNELLO DETTAGLIO se paese selezionato
+  if (paeseSelezionato !== null) {
+  disegnaPannelloDettaglio();
+}
 }
 
 
@@ -621,4 +663,454 @@ function disegnaIndicatoreScroll(yPrato) {
   text("Scorri per saperne di più", x, y - 35);
   
   pop();
+}
+
+function mousePressed() {
+  // se c'è già pannello aperto, controlla se clicco su X per chiuderlo
+  if (paeseSelezionato !== null) {
+    let margine = 60;
+    let larghezzaPannello = width - (margine * 2);
+    let altezzaPannello = windowHeight - (margine * 2);
+    let pannelloX = margine;
+    let pannelloY = margine;
+    
+    // Posizione pulsante chiudi x
+    let chiudiX = pannelloX + larghezzaPannello - 40;
+    let chiudiY = pannelloY + 20;
+    let chiudiSize = 30;
+    
+    if (mouseX > chiudiX && mouseX < chiudiX + chiudiSize &&
+        mouseY > chiudiY && mouseY < chiudiY + chiudiSize) {
+      paeseSelezionato = null;
+      sottocategorieAperte = {};
+      return;
+    }
+    
+    // controlla click sui pulsanti + delle sottocategorie
+    controllaClickSottocategorie();
+    return;
+  }
+  
+  // altrimenti guarda se clicco su un pallino x aprire dettaglio
+  if (paeseInHoverGlobale !== null) {
+    paeseSelezionato = paeseInHoverGlobale; // uso variabile già creata x es 03
+    sottocategorieAperte = {}; // reset sottocategorie aperte
+  }
+}
+
+function disegnaPannelloDettaglio() {
+  push();
+  
+  let margine = 60;
+  let larghezzaPannello = width - (margine * 2);
+  let altezzaPannello = windowHeight - (margine * 2);
+  let pannelloX = margine;
+  let pannelloY = margine;
+  
+  //sfondo
+  fill(255, 255, 255, 240);
+  stroke(coloreTitolo);
+  strokeWeight(2);
+  rect(pannelloX, pannelloY, larghezzaPannello, altezzaPannello, 20);
+  
+  // Pulsante chiudi x 
+  let chiudiX = pannelloX + larghezzaPannello - 40;
+  let chiudiY = pannelloY + 20;
+  stroke(coloreTitolo);
+  strokeWeight(3);
+  line(chiudiX, chiudiY, chiudiX + 20, chiudiY + 20);
+  line(chiudiX + 20, chiudiY, chiudiX, chiudiY + 20);
+  
+  // DIVISIONE PANNELLO 2 PARTI
+  let larghezzaSinistra = 450;
+  let xDivisione = pannelloX + larghezzaSinistra;
+  //linea divisione
+  stroke(coloreTitolo, 100);
+  strokeWeight(1);
+  line(xDivisione, pannelloY + 30, xDivisione, pannelloY + altezzaPannello - 30);
+  
+
+  // PANNELLO PARTE SINISTRA (INFO TESTUALI + BARRE)
+  noStroke();
+  fill(coloreTitolo);
+  textFont(fontTitolo);
+  textAlign(LEFT, TOP);
+  
+  let xTesto = pannelloX + 40;
+  let yTesto = pannelloY + 40;
+  
+  // Nome paese e aanno
+  textSize(32);
+  text(paeseSelezionato.nome, xTesto, yTesto);
+  yTesto += 40;
+  textFont(fontTesto);
+  textSize(16);
+  fill(coloreTitolo, 150);
+  text("2025", xTesto, yTesto);
+  yTesto += 50;
+
+  // POLITICAL RIGHTS
+  fill(coloreTitolo);
+  textFont(fontTitolo);
+  textSize(20);
+  text("POLITICAL RIGHTS: " + paeseSelezionato.pr, xTesto, yTesto);
+  yTesto += 35;
+
+  // Sottocategorie PR
+  yTesto = disegnaSottocategoria(
+    "A", 
+    "Electoral Process", 
+    paeseSelezionato.totalA, 
+    12,
+    [
+      { testo: "Is the head of state and/or head of government elected through free and fair elections?", punteggio: paeseSelezionato.a1 },
+      { testo: "Are the legislative representatives elected through free and fair elections?", punteggio: paeseSelezionato.a2 },
+      { testo: "Are the electoral laws and framework fair?", punteggio: paeseSelezionato.a3 }
+    ],
+    xTesto + 20,
+    yTesto,
+    larghezzaSinistra - 100
+  );
+  
+  yTesto = disegnaSottocategoria(
+    "B",
+    "Political Pluralism and Participation",
+    paeseSelezionato.totalB,
+    16,
+    [
+      { testo: "Do people have the right to organize in different political parties?", punteggio: paeseSelezionato.b1 },
+      { testo: "Is there a significant opposition vote and realistic possibility for power change?", punteggio: paeseSelezionato.b2 },
+      { testo: "Are people free from domination by military, foreign powers, or other groups?", punteggio: paeseSelezionato.b3 },
+      { testo: "Do minority groups have self-determination or participation in decision-making?", punteggio: paeseSelezionato.b4 }
+    ],
+    xTesto + 20,
+    yTesto,
+    larghezzaSinistra - 100
+  );
+  
+  yTesto = disegnaSottocategoria(
+    "C",
+    "Functioning of Government",
+    paeseSelezionato.totalC,
+    12,
+    [
+      { testo: "Do freely elected representatives determine government policies?", punteggio: paeseSelezionato.c1 },
+      { testo: "Is the government free from pervasive corruption?", punteggio: paeseSelezionato.c2 },
+      { testo: "Is the government accountable and transparent?", punteggio: paeseSelezionato.c3 }
+    ],
+    xTesto + 20,
+    yTesto,
+    larghezzaSinistra - 100
+  );
+
+
+  yTesto += 30;
+  
+  // CIVIL LIBERTIES
+  fill(coloreTitolo);
+  textFont(fontTitolo);
+  textSize(20);
+  text("CIVIL LIBERTIES: " + paeseSelezionato.cl, xTesto, yTesto);
+  yTesto += 35;
+  
+  // Sottocategorie CL
+  yTesto = disegnaSottocategoria(
+    "D",
+    "Freedom of Expression and Belief",
+    paeseSelezionato.totalD,
+    16,
+    [
+      { testo: "Are there free and independent media?", punteggio: paeseSelezionato.d1 },
+      { testo: "Are there free religious institutions and expression?", punteggio: paeseSelezionato.d2 },
+      { testo: "Is there academic freedom?", punteggio: paeseSelezionato.d3 },
+      { testo: "Is there open and free private discussion?", punteggio: paeseSelezionato.d4 }
+    ],
+    xTesto + 20,
+    yTesto,
+    larghezzaSinistra - 100
+  );
+  
+  yTesto = disegnaSottocategoria(
+    "E",
+    "Associational and Organizational Rights",
+    paeseSelezionato.totalE,
+    12,
+    [
+      { testo: "Is there freedom of assembly and demonstration?", punteggio: paeseSelezionato.e1 },
+      { testo: "Is there freedom for NGOs?", punteggio: paeseSelezionato.e2 },
+      { testo: "Are there free trade unions and collective bargaining?", punteggio: paeseSelezionato.e3 }
+    ],
+    xTesto + 20,
+    yTesto,
+    larghezzaSinistra - 100
+  );
+  
+  yTesto = disegnaSottocategoria(
+    "F",
+    "Rule of Law",
+    paeseSelezionato.totalF,
+    16,
+    [
+      { testo: "Is there an independent judiciary?", punteggio: paeseSelezionato.f1 },
+      { testo: "Does the rule of law prevail in civil and criminal matters?", punteggio: paeseSelezionato.f2 },
+      { testo: "Is there protection from political terror and unjustified imprisonment?", punteggio: paeseSelezionato.f3 },
+      { testo: "Do laws guarantee equal treatment of population segments?", punteggio: paeseSelezionato.f4 }
+    ],
+    xTesto + 20,
+    yTesto,
+    larghezzaSinistra - 100
+  );
+  
+  yTesto = disegnaSottocategoria(
+    "G",
+    "Personal Autonomy and Individual Rights",
+    paeseSelezionato.totalG,
+    16,
+    [
+      { testo: "Does the state control travel, residence, or employment?", punteggio: paeseSelezionato.g1 },
+      { testo: "Do citizens have the right to own property and establish businesses?", punteggio: paeseSelezionato.g2 },
+      { testo: "Are there personal social freedoms, including gender equality?", punteggio: paeseSelezionato.g3 },
+      { testo: "Is there equality of opportunity and absence of economic exploitation?", punteggio: paeseSelezionato.g4 }
+    ],
+    xTesto + 20,
+    yTesto,
+    larghezzaSinistra - 100
+  );
+
+
+  pop();
+}
+
+
+function disegnaSottocategoria(id, nome, punteggio, maxPunteggio, domande, x, y, larghezzaMax) {
+  push();
+  
+  let yCorrente = y;
+  let isAperta = sottocategorieAperte[id] || false;
+  
+
+  // NOMI PARAMETRI
+  textFont(fontTesto);
+  textSize(11);
+  fill(coloreTitolo, 180);
+  textAlign(LEFT, TOP);
+  text(nome, x + 5, yCorrente, larghezzaMax - 80);
+  
+  yCorrente += 18; // spazio dopo il nome
+  
+  // BARRA PUNTEGGIO
+  let barraHeight = 8; // barra molto sottile
+  let barraMaxWidth = larghezzaMax - 90; // lascio spazio per punteggio a destra
+  
+  // sfondo
+  fill(220);
+  noStroke();
+  rect(x + 5, yCorrente, barraMaxWidth, barraHeight, 4);
+  
+  // colore (in base punteggio)
+  let percentuale = punteggio / maxPunteggio;
+  let barraWidth = barraMaxWidth * percentuale; 
+  
+  // Colore barra in base a percentuale
+  let coloreBarra;
+  if (percentuale >= 0.75) {
+    coloreBarra = color(45, 109, 109); // (F)
+  } else if (percentuale >= 0.5) {
+    coloreBarra = color(143, 165, 156); // (PF)
+  } else {
+    coloreBarra = color(111, 12, 43); //(NF)
+  }
+  
+  fill(coloreBarra);
+  if (barraWidth > 0) {
+    rect(x + 5, yCorrente, barraWidth, barraHeight, 4);
+  }
+  
+  // PUNTEGGIO IN NUMERO
+  textFont(fontTitolo);
+  textSize(18);
+  fill(coloreTitolo);
+  textAlign(RIGHT, CENTER);
+  text(punteggio, x + larghezzaMax - 30, yCorrente + barraHeight/2);
+  
+  // Massimo punteggio più piccolo
+  textFont(fontTesto);
+  textSize(11);
+  fill(coloreTitolo, 150);
+  text("/" + maxPunteggio, x + larghezzaMax - 5, yCorrente + barraHeight/2);
+  
+
+
+  // PULSANTE ESPANDI
+  let btnSize = 18;
+  let btnX = x - 20;
+  let btnY = y + 9; // allineamento
+  
+  // verifica se hover 
+  let isHover = mouseX > btnX - btnSize/2 && mouseX < btnX + btnSize/2 &&
+                mouseY > btnY - btnSize/2 && mouseY < btnY + btnSize/2;
+  
+  // evidenzia hover
+  if (isHover) {
+    fill(coloreHighlight, 150);
+    noStroke();
+    circle(btnX, btnY, btnSize + 4); // alone più grande
+  }
+  // effettivo
+  if (isHover) {
+    fill(coloreHighlight, 220);
+  } else {
+    fill(coloreTitolo, 120);
+  }
+  noStroke();
+  circle(btnX, btnY, btnSize);
+  
+  stroke(255);
+  strokeWeight(2);
+  
+  if (isAperta) {
+    // Disegna X
+    line(btnX - 4, btnY - 4, btnX + 4, btnY + 4);
+    line(btnX + 4, btnY - 4, btnX - 4, btnY + 4);
+  } else {
+    // Disegna +
+    line(btnX - 4, btnY, btnX + 4, btnY);
+    line(btnX, btnY - 4, btnX, btnY + 4);
+  }
+
+  yCorrente += barraHeight + 5; // spazio dopo la barra
+
+  yCorrente += 5; // piccolo spazio prima delle domande
+  
+
+  // DOMANDE ESPANSE
+  if (isAperta) {
+    textFont(fontTesto);
+    textSize(10);
+    fill(coloreTitolo, 180);
+    textAlign(LEFT, TOP);
+    
+    for (let domanda of domande) {
+
+      // cerchietto inidicatore colorato punteggio
+      let punteggioPerc = domanda.punteggio / 4;
+      let coloreIndicatore;
+      if (punteggioPerc >= 0.75) {
+        coloreIndicatore = color(45, 109, 109);
+      } else if (punteggioPerc >= 0.5) {
+        coloreIndicatore = color(143, 165, 156);
+      } else {
+        coloreIndicatore = color(111, 12, 43);
+      }
+      
+      fill(coloreIndicatore);
+      noStroke();
+      circle(x + 10, yCorrente + 7, 6);
+      
+      // Punteggio domanda
+      textFont(fontTitolo);
+      textSize(10);
+      fill(coloreTitolo);
+      textAlign(LEFT, CENTER);
+      text(domanda.punteggio + "/4", x + 20, yCorrente + 7);
+      
+      // Testo domanda
+      textFont(fontTesto);
+      textSize(9);
+      fill(coloreTitolo, 160);
+      textAlign(LEFT, TOP);
+      text(domanda.testo, x + 50, yCorrente + 2, larghezzaMax - 60);
+      
+      // Calcolo altezza approssimativa (x evitare sovrapposizioni abbondo)
+      let testoLarghezza = textWidth(domanda.testo);
+      let righeStimate = ceil(testoLarghezza / (larghezzaMax - 60));
+      yCorrente += max(18, righeStimate * 13 + 6);
+    }
+    yCorrente += 5; // spazio dopo tutte domande
+  }
+  
+  yCorrente += 8; // spazio tra sottocategorie
+
+  pop();
+  return yCorrente;
+}
+
+function controllaClickSottocategorie() {
+  if (paeseSelezionato === null) return;
+  
+  let margine = 60;
+  let pannelloX = margine;
+  let pannelloY = margine;
+  let xTesto = pannelloX + 40;
+  let yTesto = pannelloY + 40;
+  
+  // replico layout funzione disegna pannello così tasti posizionati esattamente stessi punti
+  yTesto += 40; // nome paese
+  yTesto += 50; // anno
+  yTesto += 35; // titolo PR
+  
+  let btnSize = 18; // corrispnde dimensione in disegnasottocategoria
+  
+  //funzione helper che replica logica di disegnasottocategoria
+  function checkButton(id, yStart) {
+    // bottone posizionato a x - 20, y + 9 (come in disegnaSottocategoria)
+    let btnX = xTesto + 20 - 20; // = xTesto (che è pannelloX + 40)
+    let btnY = yStart + 9;
+    
+    // controllo se mouse è nell'area del bottone
+    if (mouseX > btnX - btnSize/2 && mouseX < btnX + btnSize/2 &&
+        mouseY > btnY - btnSize/2 && mouseY < btnY + btnSize/2) {
+      let eraAperta = sottocategorieAperte[id] || false;
+      //se clicco su una sottocategoria, chiudo tutte le altre
+      sottocategorieAperte = {}; // chiudo tutto
+      // Toggle: se aperta diventa chiusa, se chiusa diventa aperta
+      sottocategorieAperte[id] = !eraAperta;
+      return true;
+    }
+    return false;
+  }
+  
+  //funzione per calcolare altezza di una sottocategoria (replica logica di disegnaSottocategoria)
+  function altezzaSottocategoria(id, numDomande) {
+    let altezza = 18 + 8 + 5 + 5 + 8; // nome(18) + barra(8) + spazi + margine finale
+    
+    if (sottocategorieAperte[id]) {
+      //se aperta, aggiungo spazio per le domande (ogni domanda occupa circa 16-20px )
+      altezza += numDomande * 18 + 10; // stima conservativa
+    }
+    
+    return altezza;
+  }
+  
+  // POLITICAL RIGHTS
+  // Sottocategoria A
+  if (checkButton("A", yTesto)) return;
+  yTesto += altezzaSottocategoria("A", 3);
+  
+  // Sottocategoria B
+  if (checkButton("B", yTesto)) return;
+  yTesto += altezzaSottocategoria("B", 4);
+  
+  // Sottocategoria C
+  if (checkButton("C", yTesto)) return;
+  yTesto += altezzaSottocategoria("C", 3);
+  
+  yTesto += 30; // spazio prima CL
+  yTesto += 35; // titolo CL
+  
+  // CIVIL LIBERTIES
+  // Sottocategoria D
+  if (checkButton("D", yTesto)) return;
+  yTesto += altezzaSottocategoria("D", 4);
+  
+  // Sottocategoria E
+  if (checkButton("E", yTesto)) return;
+  yTesto += altezzaSottocategoria("E", 3);
+  
+  // Sottocategoria F
+  if (checkButton("F", yTesto)) return;
+  yTesto += altezzaSottocategoria("F", 4);
+  
+  // Sottocategoria G
+  if (checkButton("G", yTesto)) return;
 }
