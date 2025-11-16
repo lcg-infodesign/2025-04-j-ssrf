@@ -877,6 +877,12 @@ function disegnaPannelloDettaglio() {
     larghezzaSinistra - 100
   );
 
+  // PARTE DESTRA: GRAFICO TORTA
+  disegnaGraficoTorta(
+    xDivisione + (larghezzaPannello - larghezzaSinistra) / 2,
+    pannelloY + altezzaPannello / 2,
+    paeseSelezionato
+  );
 
   pop();
 }
@@ -1113,4 +1119,86 @@ function controllaClickSottocategorie() {
   
   // Sottocategoria G
   if (checkButton("G", yTesto)) return;
+}
+
+function disegnaGraficoTorta(centroX, centroY, paese) {
+  push();
+  
+  //dimensione cerchio
+  let diametro = 400;
+  let raggio = diametro / 2;
+  
+  // TOTAL SCORE 
+  textFont(fontTitolo);
+  textSize(52);
+  fill(coloreTitolo);
+  textAlign(CENTER, CENTER);
+  text(paese.total, centroX, centroY - raggio - 70);
+  
+  textFont(fontTesto);
+  textSize(16)
+  fill(coloreTitolo, 150);
+  text("Total Score", centroX, centroY - raggio - 35);
+  
+  // se valore negativo, tratta come 0
+  let prValue = max(0, paese.pr);
+  let clValue = max(0, paese.cl);
+  
+  // Calcolo angoli x fette
+  let percentualePR = prValue / 100;
+  let percentualeCL = clValue / 100
+  
+  let angoloPR = TWO_PI * percentualePR;
+  let angoloCL = TWO_PI * percentualeCL;
+  
+  // Colori in base a status paese
+  let colorePR = colori[paese.status].dark; 
+  let coloreCL = colori[paese.status].light
+  
+  // Disegno cerchio di sfondo (grigio chiaro per lo score mancante)
+  fill(230);
+  noStroke();
+  circle(centroX, centroY, diametro);
+  
+  // FETTA PR 
+  if (prValue > 0) {
+    fill(colorePR);
+    noStroke();
+    arc(centroX, centroY, diametro, diametro, -HALF_PI, -HALF_PI + angoloPR, PIE);
+  }
+  
+  // FETTA CL (continua da dove finisce PR) 
+  if (clValue > 0) {
+    fill(coloreCL);
+    arc(centroX, centroY, diametro, diametro, -HALF_PI + angoloPR, -HALF_PI + angoloPR + angoloCL, PIE);
+  }
+
+  // LEGENDA 
+  let yLegenda = centroY + raggio + 50;
+  let spaziatura = 35;
+  let altezzaQuadrato = 18;
+  
+  // Political Rights
+  fill(colorePR);
+  noStroke();
+  rect(centroX - 120, yLegenda - altezzaQuadrato/2, altezzaQuadrato, altezzaQuadrato, 3);
+  
+  textFont(fontTesto);
+  textSize(13);
+  fill(coloreTitolo);
+  textAlign(LEFT, CENTER);
+  text("Political Rights", centroX - 95, yLegenda);
+  
+  // Civil Liberties
+  fill(coloreCL);
+  noStroke();
+  rect(centroX - 120, yLegenda + spaziatura - altezzaQuadrato/2, altezzaQuadrato, altezzaQuadrato, 3);
+  
+  textFont(fontTesto);
+  textSize(13);
+  fill(coloreTitolo);
+  textAlign(LEFT, CENTER);
+  text("Civil Liberties", centroX - 95, yLegenda + spaziatura);
+
+  pop();
 }
