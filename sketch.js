@@ -42,6 +42,13 @@ const colorePannelloLegenda = "#a8ca88cf";
 let paeseSelezionato = null;
 let sottocategorieAperte = {}; // tiene traccia quali sottocategorie sono aperte
 
+// VARIABILI FILTRI
+let filtriAttivi = {
+  F: true,
+  PF: true,
+  NF: true
+};
+
 
 function preload() {
   table = loadTable('FREEDOMHOUSE_ES3.csv', 'csv', 'header');
@@ -56,6 +63,7 @@ function setup() {
   createCanvas(windowWidth, altezzaTotale);
 
   textFont(fontTesto);
+  
 
   // Carica TUTTI i dati del 2025 direttamente
   for (let i = 0; i < table.getRowCount(); i++) {
@@ -119,6 +127,9 @@ function draw() {
   disegnaGradiente();
 
   disegnaNavBar();
+
+  // FILTRI
+  disegnaFiltri();
 
   // disegno "prato"
   let yPrato = 800;
@@ -413,6 +424,11 @@ function disegnaSoffione(
     let paese = paesi[i];
     let pos = posizioni[i];
     
+    // FILTRO: salta questo paese se il suo status non è attivo
+    if (!filtriAttivi[paese.status]) {
+      continue;
+    }
+
     stroke(colori[paese.status].light);
     strokeWeight(0.3);
     line(0, 0, pos.x, pos.y);
@@ -427,6 +443,11 @@ function disegnaSoffione(
     let paese = paesi[i];
     let pos = posizioni[i];
     
+    // FILTRO: salta questo paese status non è attivo
+    if (!filtriAttivi[paese.status]) {
+      continue; // passa a prossimo paese
+    }
+
     let dimensione = map(paese.total, 5, 100, 6, 25); 
     // distribuisco total score del paese, che va da 5 a 100, tra 6 e 25
     
@@ -666,6 +687,38 @@ function disegnaIndicatoreScroll(yPrato) {
 }
 
 function mousePressed() {
+  // CONTROLLO CLICK SUI FILTRI
+  let yFiltri = 120;
+  let centroX = width / 2;
+  let larghezzaPulsante = 100;
+  let altezzaPulsante = 40;
+  let spaziatura = 15;
+  let startX = centroX - (larghezzaPulsante * 3 + spaziatura * 2) / 2;
+  
+  // Pulsante F
+  if (mouseX > startX && mouseX < startX + larghezzaPulsante &&
+      mouseY > yFiltri && mouseY < yFiltri + altezzaPulsante) {
+    filtriAttivi.F = !filtriAttivi.F;
+    return;
+  }
+  
+  // Pulsante PF
+  let xPF = startX + larghezzaPulsante + spaziatura;
+  if (mouseX > xPF && mouseX < xPF + larghezzaPulsante &&
+      mouseY > yFiltri && mouseY < yFiltri + altezzaPulsante) {
+    filtriAttivi.PF = !filtriAttivi.PF;
+    return;
+  }
+  
+  // Pulsante NF
+  let xNF = startX + (larghezzaPulsante + spaziatura) * 2;
+  if (mouseX > xNF && mouseX < xNF + larghezzaPulsante &&
+      mouseY > yFiltri && mouseY < yFiltri + altezzaPulsante) {
+    filtriAttivi.NF = !filtriAttivi.NF;
+    return;
+  }
+  
+
   // se c'è già pannello aperto, controlla se clicco su X per chiuderlo
   if (paeseSelezionato !== null) {
     let margine = 60;
@@ -1234,5 +1287,61 @@ function disegnaGraficoTorta(centroX, centroY, paese) {
   textAlign(LEFT, CENTER);
   text("Civil Liberties", centroX - 95, yLegenda + spaziatura);
 
+  pop();
+}
+
+function disegnaFiltri() {
+  push();
+  
+  let yFiltri = 120;
+  let centroX = width / 2;
+  let larghezzaPulsante = 100;
+  let altezzaPulsante = 30;
+  let spaziatura = 15;
+  
+  // Calcola posizioni (centrati)
+  let startX = centroX - (larghezzaPulsante * 3 + spaziatura * 2) / 2;
+  
+  // Array con info pulsanti
+  let pulsanti = [
+    { id: 'F', label: 'F', x: startX, colore: colori.F.base },
+    { id: 'PF', label: 'PF', x: startX + larghezzaPulsante + spaziatura, colore: colori.PF.base },
+    { id: 'NF', label: 'NF', x: startX + (larghezzaPulsante + spaziatura) * 2, colore: colori.NF.base }
+  ];
+  
+  // Disegna ogni pulsante
+  for (let btn of pulsanti) {
+    let isAttivo = filtriAttivi[btn.id];
+    let isHover = mouseX > btn.x && mouseX < btn.x + larghezzaPulsante &&
+                  mouseY > yFiltri && mouseY < yFiltri + altezzaPulsante;
+    
+    // Sfondo pulsante
+    if (isAttivo) {
+      fill(btn.colore); // colore pieno se attivo
+      noStroke()
+    } else {
+      fill(255,0); // bianco se disattivo
+      stroke(btn.colore);
+      strokeWeight(2);
+    }
+    rect(btn.x, yFiltri, larghezzaPulsante, altezzaPulsante, 10);
+    
+    // Alone hover
+    if (isHover) {
+      noFill();
+      stroke(coloreHighlight);
+      strokeWeight(3);
+      rect(btn.x - 3, yFiltri - 3, larghezzaPulsante + 6, altezzaPulsante + 6, 12);
+    }
+    
+    // Testo
+    noStroke();
+    fill(isAttivo ? 255 : btn.colore);
+    textFont(fontTitolo);
+    textSize(13);
+    textAlign(CENTER, CENTER);
+    text(btn.label, btn.x + larghezzaPulsante/2, yFiltri + altezzaPulsante/2 - 2);
+  }
+  
   pop();
 }
