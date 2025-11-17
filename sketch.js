@@ -517,7 +517,7 @@ function disegnaPannelloLegenda(yPrato) {
   textSize(11);
   textFont(fontTesto);
 
-  let testoDescrizione = "Ogni soffione rappresenta una regione geopolitica.\nI pallini sono paesi/territori valutati secondo il\nFreedom in the World Index. Punta il cursore su \nuno di essi per visualizzarne i dettagli";
+  let testoDescrizione = "Ogni soffione rappresenta una regione geopolitica.\nI pallini sono paesi/territori valutati secondo il\nFreedom in the World Index. Clicca su \nuno di essi per visualizzarne i dettagli.";
   text(testoDescrizione, testoX, testoY);
   
   testoY += 80;
